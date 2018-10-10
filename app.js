@@ -21,39 +21,42 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 
-((app)=>{
+(function (app) {
     var session = require('express-session');
     var passport = require('passport');
     const { Issuer, Strategy } = require('openid-client');
     const params = {
-        // https://samples.auth0.com/authorize?
-        // client_id = kbyuFDidLLm280LIwVFiazOqjO3ty8KH
-        // & redirect_uri= https://openidconnect.net/callback 
-        // &scope=openid profile email phone address
-        // & response_type=code
-        // & state=0975fbd748c56d8475f4dba1dfa843a930c2b109
+        issuer: 'https://jrumandal.eu.auth0.com',
+        authorization_endpoint: 'https://jrumandal.eu.auth0.com/authorize',
+        token_endpoint: 'https://jrumandal.eu.auth0.com/oauth/token',
+        userinfo_endpoint: 'https://jrumandal.eu.auth0.com/userinfo',
+        
+        openIdConfig: 'https://jrumandal.eu.auth0.com/.well-known/openid-configuration',
+        jwks: 'https://jrumandal.eu.auth0.com/.well-known/jwks.json',
+
+        client_id: '7CqxCzXTC7av5pdk_ai6dO9CndYggpZs',
+        client_secret_basic: 'A5Fh6ypZa5pXHAUMAzKfp3KePx4FYGIhThbuxdBhuxmvAzM7aIgQGs3ygxjF9v_-',
+        redirect_uri: 'http://localhost:3000/callback',
+        scope: 'profile offline_access name given_name family_name nickname email email_verified picture created_at identities phone address'
     };
 
     /** @type {Issuer} */
     const OpenIDIssuer = new Issuer({
-        issuer: 'https://dema-test.eu.auth0.com',
-        authorization_endpoint: 'https://dema-test.eu.auth0.com/authorize',
-        token_endpoint: 'https://dema-test.eu.auth0.com/oauth/token',
-        userinfo_endpoint: 'https://dema-test.eu.auth0.com/userinfo'
-        // jwks_uri: 'https://www.googleapis.com/oauth2/v3/certs'
+        issuer: params.issuer,
+        authorization_endpoint: params.authorization_endpoint,
+        token_endpoint: params.token_endpoint,
+        userinfo_endpoint: params.userinfo_endpoint
     });
 
     const OpenIDClient = new OpenIDIssuer.Client({
-        client_id: '6o6rrUedx7WmQ3WxFw7QhHLvFieWbx66',
-        // client_id: 'kbyuFDidLLm280LIwVFiazOqjO3ty8KH',
-        client_secret_basic: 'eQ-vSNkbuXK3TpD-VhhXLQj6uBADFxIbfNaUL4gR3syXCxQjmL_1BVNq5IeGxmfu',
-        // client_secret: '60Op4HFM0I8ajz0WdiStAbziZ-VFQttXuxixHHs2R7r7-CW8GR79l-mmLqMhc-Sa',
-        scope: 'profile offline_access name given_name family_name nickname email email_verified picture created_at identities phone address'
+        client_id: params.client_id,
+        client_secret_basic: params.client_secret_basic,
+        scope: params.scope
     });
 
     OpenIDClient.authorizationUrl({
-        redirect_uri: 'https://dema-auth-test.herokuapp.com/callback',
-        scope: 'profile offline_access name given_name family_name nickname email email_verified picture created_at identities phone address'
+        redirect_uri: params.redirect_uri,
+        scope: params.scope
     })
 
     
@@ -69,7 +72,7 @@ app.use(express.static(path.join(__dirname, 'public')));
     passport.use('oidc', new Strategy({
         client: OpenIDClient,
         params: {
-            redirect_uri: 'https://dema-auth-test.herokuapp.com/callback'
+            redirect_uri: params.redirect_uri
         }
     }, (tokenset, tokenSecret, profile, done) => {
         try {
@@ -101,7 +104,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
     
     app.get('/auth', passport.authenticate('oidc', { session: true }));
-    app.get('/callback', passport.authenticate('oidc', { successRedirect: '/', failureRedirect: '/error', session: true }));
+    app.get('/callback', (req, res, next) => { console.log(req.query); next(); }, passport.authenticate('oidc', { successRedirect: '/', failureRedirect: '/error' }));
 })(app);
 
 app.use((req, res, next) => {
