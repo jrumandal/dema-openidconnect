@@ -75,10 +75,6 @@ app.use(express.static(path.join(__dirname, 'public')));
     app.use(passport.initialize());
     app.use(passport.session());
 
-
-    
-
-
     passport.use('oidc', new Strategy({
         client: OpenIDClient,
         params: {
@@ -99,8 +95,8 @@ app.use(express.static(path.join(__dirname, 'public')));
     }));
 
     
-    app.get('/auth', passport.authenticate('oidc'));
-    app.get('/callback', passport.authenticate('oidc', { successRedirect: '/', failureRedirect: '/error' }));
+    app.get('/auth', passport.authenticate('oidc', { session: true }));
+    app.get('/callback', passport.authenticate('oidc', { successRedirect: '/', failureRedirect: '/error', session: true }));
 })(app);
 
 app.use((req, res, next) => {
