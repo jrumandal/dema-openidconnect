@@ -46,7 +46,7 @@ app.use(express.static(path.join(__dirname, 'public')));
     const OpenIDClient = new OpenIDIssuer.Client({
         client_id: '6o6rrUedx7WmQ3WxFw7QhHLvFieWbx66',
         // client_id: 'kbyuFDidLLm280LIwVFiazOqjO3ty8KH',
-        client_secret: 'eQ-vSNkbuXK3TpD-VhhXLQj6uBADFxIbfNaUL4gR3syXCxQjmL_1BVNq5IeGxmfu',
+        client_secret_basic: 'eQ-vSNkbuXK3TpD-VhhXLQj6uBADFxIbfNaUL4gR3syXCxQjmL_1BVNq5IeGxmfu',
         // client_secret: '60Op4HFM0I8ajz0WdiStAbziZ-VFQttXuxixHHs2R7r7-CW8GR79l-mmLqMhc-Sa',
         scope: 'profile offline_access name given_name family_name nickname email email_verified picture created_at identities phone address'
     });
