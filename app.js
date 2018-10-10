@@ -51,21 +51,12 @@ app.use(express.static(path.join(__dirname, 'public')));
         scope: 'profile offline_access name given_name family_name nickname email email_verified picture created_at identities phone address'
     });
 
-    // OpenIDClient.authorizationUrl({
-    //     redirect_uri: 'https://dema-auth-test.herokuapp.com/callback',
-    //     scope: 'profile offline_access name given_name family_name nickname email email_verified picture created_at identities phone address'
-    // })
+    OpenIDClient.authorizationUrl({
+        redirect_uri: 'https://dema-auth-test.herokuapp.com/callback',
+        scope: 'profile offline_access name given_name family_name nickname email email_verified picture created_at identities phone address'
+    })
 
-    passport.serializeUser(function (user, done) {
-        console.log("SERIALIZED", user);
-        done(null, user);
-    });
-
-    passport.deserializeUser(function (user, done) {
-        console.log("DESERIALIZED. id:", user)
-        done(null, user);
-    });
-
+    
     app.use(session({
         secret: 'keyboard cat',
         resave: false,
@@ -81,22 +72,36 @@ app.use(express.static(path.join(__dirname, 'public')));
             redirect_uri: 'https://dema-auth-test.herokuapp.com/callback'
         }
     }, (tokenset, tokenSecret, profile, done) => {
-        console.log('tokenset', tokenset);
-        console.log('access_token', tokenset.access_token);
-        console.log('id_token', tokenset.id_token);
-        console.log('claims', tokenset.claims);
-        console.log('tokenSecret', tokenset.tokenSecret);
-        console.log('userinfo', profile);
-
-        if(err) {
-            return done(err);
+        try {
+            console.log('tokenset', tokenset);
+            console.log('access_token', tokenset.access_token);
+            console.log('id_token', tokenset.id_token);
+            console.log('claims', tokenset.claims);
+            console.log('tokenSecret', tokenset.tokenSecret);
+            console.log('userinfo', profile);
+        } catch (e) {
+            console.error(e);
+        } finally {
+            if(err) {
+                return done(err);
+            }
+            return done(null, profile);
         }
-        return done(null, profile);
     }));
 
+    passport.serializeUser(function (user, done) {
+        console.log("SERIALIZED", user);
+        done(null, user);
+    });
+
+    passport.deserializeUser(function (user, done) {
+        console.log("DESERIALIZED. id:", user)
+        done(null, user);
+    });
+
     
-    app.get('/auth', passport.authenticate('oidc'));
-    app.get('/callback', passport.authenticate('oidc', { successRedirect: '/', failureRedirect: '/error'}));
+    app.get('/auth', passport.authenticate('oidc', { session: true }));
+    app.get('/callback', passport.authenticate('oidc', { successRedirect: '/', failureRedirect: '/error', session: true }));
 })(app);
 
 app.use((req, res, next) => {
