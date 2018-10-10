@@ -79,7 +79,8 @@ app.use(express.static(path.join(__dirname, 'public')));
         client: OpenIDClient,
         params: {
             redirect_uri: 'https://dema-auth-test.herokuapp.com/callback'
-        }
+        },
+        usePKCE: 'S256'
     }, (tokenset, tokenSecret, profile, done) => {
         console.log('tokenset', tokenset);
         console.log('access_token', tokenset.access_token);
