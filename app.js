@@ -34,9 +34,9 @@ app.use(express.static(path.join(__dirname, 'public')));
         openIdConfig: 'https://jrumandal.eu.auth0.com/.well-known/openid-configuration',
         jwks: 'https://jrumandal.eu.auth0.com/.well-known/jwks.json',
 
-        client_id: '7CqxCzXTC7av5pdk_ai6dO9CndYggpZs',
-        client_secret_basic: 'A5Fh6ypZa5pXHAUMAzKfp3KePx4FYGIhThbuxdBhuxmvAzM7aIgQGs3ygxjF9v_-',
-        redirect_uri: 'https://dema-auth-test.herokuapp.com/callback' || 'http://localhost:3000/callback',
+        client_id: 'l4VFVjxCyb7MNFFJFevaIo3u4M0sWxND',
+        client_secret_basic: 'bBq1E4S8DZgVgHOi0NAkkV9qdvtzM1UhkWTu2InSwsjtVxTrTEFLGnP1u6xibQiN',
+        redirect_uri: 'https://dema-auth-test.herokuapp.com/callback',
         scope: 'profile offline_access name given_name family_name nickname email email_verified picture created_at identities phone address'
     };
 
@@ -51,12 +51,14 @@ app.use(express.static(path.join(__dirname, 'public')));
     const OpenIDClient = new OpenIDIssuer.Client({
         client_id: params.client_id,
         client_secret_basic: params.client_secret_basic,
+        redirect_uri: params.redirect_uri,
         scope: params.scope
     });
 
     OpenIDClient.authorizationUrl({
         redirect_uri: params.redirect_uri,
-        scope: params.scope
+        scope: params.scope,
+        response_type: 'code'
     })
 
     
@@ -72,9 +74,11 @@ app.use(express.static(path.join(__dirname, 'public')));
     passport.use('oidc', new Strategy({
         client: OpenIDClient,
         params: {
-            redirect_uri: params.redirect_uri
-        }
-    }, (tokenset, tokenSecret, profile, done) => {
+            redirect_uri: params.redirect_uri,
+            profile: true
+        },
+        usePKCE: false // 'S256'
+    }, (tokenset, profile, done) => {
         try {
             console.log('tokenset', tokenset);
             console.log('access_token', tokenset.access_token);
@@ -85,9 +89,6 @@ app.use(express.static(path.join(__dirname, 'public')));
         } catch (e) {
             console.error(e);
         } finally {
-            if(err) {
-                return done(err);
-            }
             return done(null, profile);
         }
     }));
@@ -104,7 +105,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 
     
     app.get('/auth', passport.authenticate('oidc', { session: true }));
-    app.get('/callback', (req, res, next) => { console.log(req.query); next(); }, passport.authenticate('oidc', { successRedirect: '/', failureRedirect: '/error' }));
+    app.get('/callback', (req, res, next) => { console.log(req.query); next(); }, passport.authenticate('oidc', { successRedirect: '/' }
+    
+    // , function(arg1, arg2, arg3) {
+    //     console.log('arg1', arg1)
+    //     console.log('arg2', arg2)
+    //     console.log('arg3', arg3)
+    // }
+    ));
 })(app);
 
 app.use((req, res, next) => {
