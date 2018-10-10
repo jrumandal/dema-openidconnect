@@ -36,7 +36,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
         client_id: '7CqxCzXTC7av5pdk_ai6dO9CndYggpZs',
         client_secret_basic: 'A5Fh6ypZa5pXHAUMAzKfp3KePx4FYGIhThbuxdBhuxmvAzM7aIgQGs3ygxjF9v_-',
-        redirect_uri: 'http://localhost:3000/callback',
+        redirect_uri: 'https://dema-auth-test.herokuapp.com/callback' || 'http://localhost:3000/callback',
         scope: 'profile offline_access name given_name family_name nickname email email_verified picture created_at identities phone address'
     };
 
