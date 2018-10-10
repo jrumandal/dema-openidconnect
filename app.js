@@ -30,14 +30,17 @@ app.use(express.static(path.join(__dirname, 'public')));
         authorization_endpoint: 'https://jrumandal.eu.auth0.com/authorize',
         token_endpoint: 'https://jrumandal.eu.auth0.com/oauth/token',
         userinfo_endpoint: 'https://jrumandal.eu.auth0.com/userinfo',
-        
+        audience: 'https://jrumandal.eu.auth0.com/api/v2/',
+        response_type: 'code',
+        grant_type: 'authorization_code',
+
         openIdConfig: 'https://jrumandal.eu.auth0.com/.well-known/openid-configuration',
         jwks: 'https://jrumandal.eu.auth0.com/.well-known/jwks.json',
 
         client_id: 'l4VFVjxCyb7MNFFJFevaIo3u4M0sWxND',
         client_secret_basic: 'bBq1E4S8DZgVgHOi0NAkkV9qdvtzM1UhkWTu2InSwsjtVxTrTEFLGnP1u6xibQiN',
-        redirect_uri: 'https://dema-auth-test.herokuapp.com/callback',
-        scope: 'profile offline_access name given_name family_name nickname email email_verified picture created_at identities phone address'
+        redirect_uri: 'http://localhost:3000/callback' || 'https://dema-auth-test.herokuapp.com/callback',
+        scope: 'openid profile email phone address'
     };
 
     /** @type {Issuer} */
@@ -52,15 +55,16 @@ app.use(express.static(path.join(__dirname, 'public')));
         client_id: params.client_id,
         client_secret_basic: params.client_secret_basic,
         redirect_uri: params.redirect_uri,
-        scope: params.scope
+        scope: params.scope,
+        audience: params.audience,
+        response_type: params.response_type,
+        grant_type: params.grant_type
     });
 
     OpenIDClient.authorizationUrl({
         redirect_uri: params.redirect_uri,
-        scope: params.scope,
-        response_type: 'code'
+        scope: params.scope
     })
-
     
     app.use(session({
         secret: 'keyboard cat',
@@ -71,25 +75,33 @@ app.use(express.static(path.join(__dirname, 'public')));
     app.use(passport.initialize());
     app.use(passport.session());
 
+
+    const passReqToCallback = false; // optional, defaults to false, when true req is passed as a first
+                                 // argument to verify fn
+    const usePKCE = 'plain' || 'S256'; // optional, defaults to false, when true the code_challenge_method will be
+                      // resolved from the issuer configuration, instead of true you may provide
+                      // any of the supported values directly, i.e. "S256" (recommended) or "plain"
     passport.use('oidc', new Strategy({
         client: OpenIDClient,
         params: {
             redirect_uri: params.redirect_uri,
-            profile: true
+            scope: params.scope
         },
-        usePKCE: false // 'S256'
-    }, (tokenset, profile, done) => {
+        usePKCE,
+        passReqToCallback
+    }, (tokenset, userinfo, done) => {
         try {
             console.log('tokenset', tokenset);
             console.log('access_token', tokenset.access_token);
             console.log('id_token', tokenset.id_token);
             console.log('claims', tokenset.claims);
             console.log('tokenSecret', tokenset.tokenSecret);
-            console.log('userinfo', profile);
+            console.log('userinfo', userinfo);
         } catch (e) {
             console.error(e);
+            return done(e);
         } finally {
-            return done(null, profile);
+            return done(null, userinfo);
         }
     }));
 
@@ -105,14 +117,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
     
     app.get('/auth', passport.authenticate('oidc', { session: true }));
-    app.get('/callback', (req, res, next) => { console.log(req.query); next(); }, passport.authenticate('oidc', { successRedirect: '/' }
-    
+    app.get('/callback', passport.authenticate('oidc'));
     // , function(arg1, arg2, arg3) {
     //     console.log('arg1', arg1)
     //     console.log('arg2', arg2)
     //     console.log('arg3', arg3)
     // }
-    ));
 })(app);
 
 app.use((req, res, next) => {
