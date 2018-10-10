@@ -39,7 +39,7 @@ app.use(express.static(path.join(__dirname, 'public')));
         issuer: 'https://dema-test.eu.auth0.com',
         authorization_endpoint: 'https://dema-test.eu.auth0.com/authorize',
         token_endpoint: 'https://dema-test.eu.auth0.com/oauth/token',
-    userinfo_endpoint: 'https://dema-test.eu.auth0.com/userinfo'
+        userinfo_endpoint: 'https://dema-test.eu.auth0.com/userinfo'
         // jwks_uri: 'https://www.googleapis.com/oauth2/v3/certs'
     });
 
@@ -79,8 +79,7 @@ app.use(express.static(path.join(__dirname, 'public')));
         client: OpenIDClient,
         params: {
             redirect_uri: 'https://dema-auth-test.herokuapp.com/callback'
-        },
-        usePKCE: 'plain'
+        }
     }, (tokenset, tokenSecret, profile, done) => {
         console.log('tokenset', tokenset);
         console.log('access_token', tokenset.access_token);
@@ -96,8 +95,8 @@ app.use(express.static(path.join(__dirname, 'public')));
     }));
 
     
-    app.get('/auth', passport.authenticate('oidc', { session: true }));
-    app.get('/callback', passport.authenticate('oidc', { successRedirect: '/', failureRedirect: '/error', session: true }));
+    app.get('/auth', passport.authenticate('oidc'));
+    app.get('/callback', passport.authenticate('oidc', { successRedirect: '/', failureRedirect: '/error'}));
 })(app);
 
 app.use((req, res, next) => {
