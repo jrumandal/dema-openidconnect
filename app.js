@@ -52,7 +52,7 @@ app.use(express.static(path.join(__dirname, 'public')));
     });
 
     OpenIDClient.authorizationUrl({
-        redirect_uri: 'http://localhost:3000',
+        redirect_uri: 'https://dema-auth-test.herokuapp.com/callback',
         scope: 'profile offline_access name given_name family_name nickname email email_verified picture created_at identities phone address'
     })
 
