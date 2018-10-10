@@ -48,13 +48,23 @@ app.use(express.static(path.join(__dirname, 'public')));
         // client_id: 'kbyuFDidLLm280LIwVFiazOqjO3ty8KH',
         client_secret: 'eQ-vSNkbuXK3TpD-VhhXLQj6uBADFxIbfNaUL4gR3syXCxQjmL_1BVNq5IeGxmfu',
         // client_secret: '60Op4HFM0I8ajz0WdiStAbziZ-VFQttXuxixHHs2R7r7-CW8GR79l-mmLqMhc-Sa',
-        scope: 'openid profile email phone address'
+        scope: 'profile offline_access name given_name family_name nickname email email_verified picture created_at identities phone address'
     });
 
-    OpenIDClient.authorizationUrl({
-        redirect_uri: 'https://dema-auth-test.herokuapp.com/callback',
-        scope: 'profile offline_access name given_name family_name nickname email email_verified picture created_at identities phone address'
-    })
+    // OpenIDClient.authorizationUrl({
+    //     redirect_uri: 'https://dema-auth-test.herokuapp.com/callback',
+    //     scope: 'profile offline_access name given_name family_name nickname email email_verified picture created_at identities phone address'
+    // })
+
+    passport.serializeUser(function (user, done) {
+        console.log("SERIALIZED", user);
+        done(null, user);
+    });
+
+    passport.deserializeUser(function (user, done) {
+        console.log("DESERIALIZED. id:", user)
+        done(null, user);
+    });
 
     app.use(session({
         secret: 'keyboard cat',
@@ -66,19 +76,14 @@ app.use(express.static(path.join(__dirname, 'public')));
     app.use(passport.session());
 
 
-    passport.serializeUser(function(user, done) {
-        console.log("SERIALIZED", user);
-        done(null, user);
-    });
-
-    passport.deserializeUser(function(user, done) {
-        console.log("DESERIALIZED. id:", user)
-        done(null, user);
-    });
+    
 
 
     passport.use('oidc', new Strategy({
-        client: OpenIDClient
+        client: OpenIDClient,
+        params: {
+            redirect_uri: 'https://dema-auth-test.herokuapp.com/callback'
+        }
     }, (tokenset, tokenSecret, profile, done) => {
         console.log('tokenset', tokenset);
         console.log('access_token', tokenset.access_token);
