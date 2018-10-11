@@ -58,8 +58,8 @@ passport.deserializeUser(function (user, done) {
 
         client_id: 'l4VFVjxCyb7MNFFJFevaIo3u4M0sWxND',
         client_secret: 'bBq1E4S8DZgVgHOi0NAkkV9qdvtzM1UhkWTu2InSwsjtVxTrTEFLGnP1u6xibQiN',
-        redirect_uri: 'http://localhost:3000/callback' || 'https://dema-auth-test.herokuapp.com/callback',
-        redirect_url: 'http://localhost:3000/callback' || 'https://dema-auth-test.herokuapp.com/callback',
+        redirect_uri: 'https://dema-auth-test.herokuapp.com/callback' || 'http://localhost:3000/callback',
+        redirect_url: 'https://dema-auth-test.herokuapp.com/callback' || 'http://localhost:3000/callback',
         scope: 'openid profile email phone address',
         profile: true
     };
@@ -74,11 +74,16 @@ passport.deserializeUser(function (user, done) {
         jwks_uri: params.jwks_uri
     });
 
-    const OpenIDClient = new OpenIDIssuer.Client(params);
+    const OpenIDClient = new OpenIDIssuer.Client({
+        client_id: params.client_id,
+        client_secret: params.client_secret
+    });
 
-    OpenIDClient.authorizationUrl(params)
-    OpenIDClient.CLOCK_TOLERANCE = 15; // to allow a 5 second skew
-    
+    OpenIDClient.authorizationUrl({
+        redirect_uri: params.redirect_uri,
+        scope: params.scope
+    })
+    OpenIDClient.CLOCK_TOLERANCE = 15; // to allow a 5 second skew. Increase if returns 'Token generated in future'
 
 
     const passReqToCallback = false; // optional, defaults to false, when true req is passed as a first
@@ -115,11 +120,6 @@ passport.deserializeUser(function (user, done) {
 
     app.get('/auth', passport.authenticate('oidc', { session: true }));
     app.get('/callback', passport.authenticate('oidc', { failureRedirect: '/error', successRedirect: '/' }));
-    // , function(arg1, arg2, arg3) {
-    //     console.log('arg1', arg1)
-    //     console.log('arg2', arg2)
-    //     console.log('arg3', arg3)
-    // }
 })(app);
 
 app.use((req, res, next) => {
