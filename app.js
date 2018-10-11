@@ -43,27 +43,34 @@ passport.deserializeUser(function (user, done) {
 (function (app) {
     const { Issuer, Strategy } = require('openid-client');
     const myDomain = process.env.REMOTE_DOMAIN || 'http://localhost:3000/';
-    const params = {
-        issuer: process.env.ISSUER,
-        authorization_endpoint: process.env.AUTHORIZATION_ENDPOINT,
-        token_endpoint: process.env.TOKEN_ENDPOINT,
-        userinfo_endpoint: process.env.USERINFO_ENDPOINT,
-        audience: process.env.AUDIENCE,
-        response_type: process.env.RESPONSE_TYPE,
-        grant_type: process.env.GRANT_TYPE,
+    let config = undefined;
+    if (process.env.NODE_ENV === 'production') {
+        config = {
+            issuer: process.env.ISSUER,
+            authorization_endpoint: process.env.AUTHORIZATION_ENDPOINT,
+            token_endpoint: process.env.TOKEN_ENDPOINT,
+            userinfo_endpoint: process.env.USERINFO_ENDPOINT,
+            audience: process.env.AUDIENCE,
+            response_type: process.env.RESPONSE_TYPE,
+            grant_type: process.env.GRANT_TYPE,
+    
+            'openid-configuration': process.env.OPEN_CONFIGURATION,
+            jwks_uri: process.env.JWKS_URI,
+            jwks: process.env.JWKS,
+            // leeway: 1112000,
+    
+            client_id: process.env.CLIENT_ID,
+            client_secret: process.env.CLIENT_SECRET,
+            redirect_uri: `${myDomain}callback`,
+            redirect_url: `${myDomain}callback`,
+            scope: process.env.SCOPE,
+            profile: true
+        };
+    } else {
+        config = require('./private/openidconfig.js');
+    }
+    const params = config;
 
-        'openid-configuration': process.env.OPEN_CONFIGURATION,
-        jwks_uri: process.env.JWKS_URI,
-        jwks: process.env.JWKS,
-        // leeway: 1112000,
-
-        client_id: process.env.CLIENT_ID,
-        client_secret: process.env.CLIENT_SECRET,
-        redirect_uri: `${myDomain}callback`,
-        redirect_url: `${myDomain}callback`,
-        scope: process.env.SCOPE,
-        profile: true
-    };
 
     /** @type {Issuer} */
     const OpenIDIssuer = new Issuer({
