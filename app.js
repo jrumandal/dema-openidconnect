@@ -71,6 +71,8 @@ passport.deserializeUser(function (user, done) {
     }
     const params = config;
 
+    console.log(params);
+
 
     /** @type {Issuer} */
     const OpenIDIssuer = new Issuer({
