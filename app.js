@@ -84,12 +84,12 @@ passport.deserializeUser(function (user, done) {
         redirect_uri: params.redirect_uri,
         scope: params.scope
     })
-    OpenIDClient.CLOCK_TOLERANCE = 15; // to allow a 5 second skew. Increase if returns 'Token generated in future'
+    OpenIDClient.CLOCK_TOLERANCE = process.env.CLOCK_TOLERANCE || 15; // to allow a 5 second skew. Increase if returns 'Token generated in future'
 
 
     const passReqToCallback = false; // optional, defaults to false, when true req is passed as a first
                                  // argument to verify fn
-    const usePKCE = 'S256'; // optional, defaults to false, when true the code_challenge_method will be
+    const usePKCE = process.env.USE_PKCE || 'S256'; // optional, defaults to false, when true the code_challenge_method will be
                       // resolved from the issuer configuration, instead of true you may provide
                       // any of the supported values directly, i.e. "S256" (recommended) or "plain"
     passport.use('oidc', new Strategy({
