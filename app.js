@@ -42,7 +42,7 @@ passport.deserializeUser(function (user, done) {
 
 (function (app) {
     const { Issuer, Strategy } = require('openid-client');
-    const myDomain = 'http://localhost:3000/';
+    const myDomain = process.env.REMOTE_DOMAIN || 'http://localhost:3000/';
     const params = {
         issuer: 'https://jrumandal.eu.auth0.com/',
         authorization_endpoint: 'https://jrumandal.eu.auth0.com/authorize',
@@ -59,8 +59,8 @@ passport.deserializeUser(function (user, done) {
 
         client_id: 'l4VFVjxCyb7MNFFJFevaIo3u4M0sWxND',
         client_secret: 'bBq1E4S8DZgVgHOi0NAkkV9qdvtzM1UhkWTu2InSwsjtVxTrTEFLGnP1u6xibQiN',
-        redirect_uri: `${myDomain}callback` || 'https://dema-auth-test.herokuapp.com/callback',
-        redirect_url: `${myDomain}callback` || 'https://dema-auth-test.herokuapp.com/callback',
+        redirect_uri: `${myDomain}callback`,
+        redirect_url: `${myDomain}callback`,
         scope: 'openid profile email phone address',
         profile: true
     };
