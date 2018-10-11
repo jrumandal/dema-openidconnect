@@ -1,5 +1,55 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+    .mdl-grid
+        - if (user === undefined)
+            .mdl-cell.mdl-cell--6-col
+                h1= title
+                p Welcome to #{title}
+                p This application tests authentication with OpenID Provider Auth0.
+                    br
+                    |You can login with your Google account or in alternative with a given user&password
+                p For more info about this awesome login: jrumandal@gmail.com
+                    br
+                    a(href="https://github.com/jrumandal/dema-openidconnect") https://github.com/jrumandal/dema-openidconnect
+            .mdl-cell.mdl-cell--12-col
+                a.mdl-button.mdl-js-button.mdl-button--raised.mdl-js-ripple-effect.mdl-button--colored(href="./auth")
+                    i.material-icons
+                    |Login
+        - else
+            style.
+                .demo-card-image.mdl-card {
+                    width: 256px;
+                    height: 256px;
+                }
+                .demo-card-image > .mdl-card__actions {
+                    height: 52px;
+                    padding: 16px;
+                    background: rgba(0, 0, 0, 0.2);
+                }
+                .demo-card-image__filename {
+                    color: #fff;
+                    font-size: 14px;
+                    font-weight: 500;
+                }
+            .mdl-cell.mdl-cell--6-col
+                .demo-card-image.mdl-card.mdl-shadow--2dp(style={ background: `url('${user.picture}') center / cover`})
+                    .mdl-card__title.mdl-card--expand
+                    .mdl-card__actions
+                        span.demo-card-image__filename #{user.nickname}
+            .mdl-cell.mdl-cell--6-col
+                - for(let i = 0, keys = Object.keys(user); i < keys.length; i++)
+                    - if(typeof user[keys[i]] === 'boolean')
+                        label.mdl-checkbox.mdl-js-checkbox.mdl-js-ripple-effect(for="checkbox-"+i)
+                            - let attr = {};
+                            - if (user[keys[i]] === true) attr = { checked: '' };
+                            input.mdl-checkbox__input(id="checkbox"+i, type="checkbox")&attributes(attr)
+                            span.mdl-checkbox__label #{keys[i]}
+                    - else
+                        .mdl-textfield.mdl-js-textfield.mdl-textfield--floating-label
+                            input.mdl-textfield__input(type="text", id="sample"+i, value=user[keys[i]])
+                            label.mdl-textfield__label(for="sample"+i) #{keys[i]}
+            .mdl-cell.mdl-cell--12-col
+                a.mdl-button.mdl-js-button.mdl-button--raised.mdl-js-ripple-effect.mdl-button--accent(href="./logout")
+                    i.material-icons
+                    |Logout
