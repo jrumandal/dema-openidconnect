@@ -44,24 +44,24 @@ passport.deserializeUser(function (user, done) {
     const { Issuer, Strategy } = require('openid-client');
     const myDomain = process.env.REMOTE_DOMAIN || 'http://localhost:3000/';
     const params = {
-        issuer: 'https://jrumandal.eu.auth0.com/',
-        authorization_endpoint: 'https://jrumandal.eu.auth0.com/authorize',
-        token_endpoint: 'https://jrumandal.eu.auth0.com/oauth/token',
-        userinfo_endpoint: 'https://jrumandal.eu.auth0.com/userinfo',
-        audience: 'https://jrumandal.eu.auth0.com/api/v2/',
-        response_type: 'code',
-        grant_type: 'authorization_code',
+        issuer: process.env.ISSUER,
+        authorization_endpoint: process.env.AUTHORIZATION_ENDPOINT,
+        token_endpoint: process.env.TOKEN_ENDPOINT,
+        userinfo_endpoint: process.env.USERINFO_ENDPOINT,
+        audience: process.env.AUDIENCE,
+        response_type: process.env.RESPONSE_TYPE,
+        grant_type: process.env.GRANT_TYPE,
 
-        'openid-configuration': 'https://jrumandal.eu.auth0.com/.well-known/openid-configuration',
-        jwks_uri: 'https://jrumandal.eu.auth0.com/.well-known/jwks.json',
-        jwks: 'https://jrumandal.eu.auth0.com/.well-known/jwks.json',
+        'openid-configuration': process.env.OPEN_CONFIGURATION,
+        jwks_uri: process.env.JWKS_URI,
+        jwks: process.env.JWKS,
         // leeway: 1112000,
 
-        client_id: 'l4VFVjxCyb7MNFFJFevaIo3u4M0sWxND',
-        client_secret: 'bBq1E4S8DZgVgHOi0NAkkV9qdvtzM1UhkWTu2InSwsjtVxTrTEFLGnP1u6xibQiN',
+        client_id: process.env.CLIENT_ID,
+        client_secret: process.env.CLIENT_SECRET,
         redirect_uri: `${myDomain}callback`,
         redirect_url: `${myDomain}callback`,
-        scope: 'openid profile email phone address',
+        scope: process.env.SCOPE,
         profile: true
     };
 
