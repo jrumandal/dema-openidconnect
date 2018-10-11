@@ -20,13 +20,30 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
+var session = require('express-session');
+
+app.use(session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false, maxAge: 60000 }
+}));
+
+var passport = require('passport');
+passport.serializeUser(function (user, done) {
+    console.log("SERIALIZED", user);
+    done(null, user);
+});
+
+passport.deserializeUser(function (user, done) {
+    console.log("DESERIALIZED. id:", user)
+    done(null, user);
+});
 
 (function (app) {
-    var session = require('express-session');
-    var passport = require('passport');
     const { Issuer, Strategy } = require('openid-client');
     const params = {
-        issuer: 'https://jrumandal.eu.auth0.com',
+        issuer: 'https://jrumandal.eu.auth0.com/',
         authorization_endpoint: 'https://jrumandal.eu.auth0.com/authorize',
         token_endpoint: 'https://jrumandal.eu.auth0.com/oauth/token',
         userinfo_endpoint: 'https://jrumandal.eu.auth0.com/userinfo',
@@ -34,13 +51,17 @@ app.use(express.static(path.join(__dirname, 'public')));
         response_type: 'code',
         grant_type: 'authorization_code',
 
-        openIdConfig: 'https://jrumandal.eu.auth0.com/.well-known/openid-configuration',
+        'openid-configuration': 'https://jrumandal.eu.auth0.com/.well-known/openid-configuration',
+        jwks_uri: 'https://jrumandal.eu.auth0.com/.well-known/jwks.json',
         jwks: 'https://jrumandal.eu.auth0.com/.well-known/jwks.json',
+        // leeway: 1112000,
 
         client_id: 'l4VFVjxCyb7MNFFJFevaIo3u4M0sWxND',
-        client_secret_basic: 'bBq1E4S8DZgVgHOi0NAkkV9qdvtzM1UhkWTu2InSwsjtVxTrTEFLGnP1u6xibQiN',
+        client_secret: 'bBq1E4S8DZgVgHOi0NAkkV9qdvtzM1UhkWTu2InSwsjtVxTrTEFLGnP1u6xibQiN',
         redirect_uri: 'http://localhost:3000/callback' || 'https://dema-auth-test.herokuapp.com/callback',
-        scope: 'openid profile email phone address'
+        redirect_url: 'http://localhost:3000/callback' || 'https://dema-auth-test.herokuapp.com/callback',
+        scope: 'openid profile email phone address',
+        profile: true
     };
 
     /** @type {Issuer} */
@@ -48,37 +69,21 @@ app.use(express.static(path.join(__dirname, 'public')));
         issuer: params.issuer,
         authorization_endpoint: params.authorization_endpoint,
         token_endpoint: params.token_endpoint,
-        userinfo_endpoint: params.userinfo_endpoint
+        userinfo_endpoint: params.userinfo_endpoint,
+        jwks: params.jwks,
+        jwks_uri: params.jwks_uri
     });
 
-    const OpenIDClient = new OpenIDIssuer.Client({
-        client_id: params.client_id,
-        client_secret_basic: params.client_secret_basic,
-        redirect_uri: params.redirect_uri,
-        scope: params.scope,
-        audience: params.audience,
-        response_type: params.response_type,
-        grant_type: params.grant_type
-    });
+    const OpenIDClient = new OpenIDIssuer.Client(params);
 
-    OpenIDClient.authorizationUrl({
-        redirect_uri: params.redirect_uri,
-        scope: params.scope
-    })
+    OpenIDClient.authorizationUrl(params)
+    OpenIDClient.CLOCK_TOLERANCE = 15; // to allow a 5 second skew
     
-    app.use(session({
-        secret: 'keyboard cat',
-        resave: false,
-        saveUninitialized: true,
-        cookie: { secure: false, maxAge: 60000 }
-    }));
-    app.use(passport.initialize());
-    app.use(passport.session());
 
 
     const passReqToCallback = false; // optional, defaults to false, when true req is passed as a first
                                  // argument to verify fn
-    const usePKCE = 'plain' || 'S256'; // optional, defaults to false, when true the code_challenge_method will be
+    const usePKCE = 'S256'; // optional, defaults to false, when true the code_challenge_method will be
                       // resolved from the issuer configuration, instead of true you may provide
                       // any of the supported values directly, i.e. "S256" (recommended) or "plain"
     passport.use('oidc', new Strategy({
@@ -104,20 +109,12 @@ app.use(express.static(path.join(__dirname, 'public')));
             return done(null, userinfo);
         }
     }));
+    app.use(passport.initialize());
+    app.use(passport.session());
 
-    passport.serializeUser(function (user, done) {
-        console.log("SERIALIZED", user);
-        done(null, user);
-    });
 
-    passport.deserializeUser(function (user, done) {
-        console.log("DESERIALIZED. id:", user)
-        done(null, user);
-    });
-
-    
     app.get('/auth', passport.authenticate('oidc', { session: true }));
-    app.get('/callback', passport.authenticate('oidc'));
+    app.get('/callback', passport.authenticate('oidc', { failureRedirect: '/error', successRedirect: '/' }));
     // , function(arg1, arg2, arg3) {
     //     console.log('arg1', arg1)
     //     console.log('arg2', arg2)
