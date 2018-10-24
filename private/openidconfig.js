@@ -1,4 +1,8 @@
+/** domain */
 let myDomain = 'http://localhost:3000/';
+/* configuration used for offline testing 
+*  put your keys here without commit it
+*/
 const config = {
     audience: '',
     authorization_endpoint: '',

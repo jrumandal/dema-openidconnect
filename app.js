@@ -39,10 +39,11 @@ passport.deserializeUser(function (user, done) {
     console.log("DESERIALIZED. id:", user)
     done(null, user);
 });
-
+/** Isolation */
 (function (app) {
     const { Issuer, Strategy } = require('openid-client');
     const myDomain = process.env.REMOTE_DOMAIN || 'http://localhost:3000/';
+    /** @type {Object} Configuration for OpenID Client */
     let config = undefined;
     if (process.env.NODE_ENV === 'production') {
         config = {
@@ -125,7 +126,7 @@ passport.deserializeUser(function (user, done) {
     app.use(passport.initialize());
     app.use(passport.session());
 
-
+    // Define path entities required for authentication system
     app.get('/auth', passport.authenticate('oidc', { session: true }));
     app.get('/callback', passport.authenticate('oidc', { failureRedirect: '/error', successRedirect: '/' }));
     app.get('/logout', (req, res, next) => {
