@@ -62,8 +62,8 @@ passport.deserializeUser(function (user, done) {
     
             client_id: process.env.CLIENT_ID,
             client_secret: process.env.CLIENT_SECRET,
-            redirect_uri: `${myDomain}callback`,
-            redirect_url: `${myDomain}callback`,
+            redirect_uri: process.env.REDIRECT_URI || `${myDomain}callback`,
+            redirect_url: process.env.REDIRECT_URI || `${myDomain}callback`,
             scope: process.env.SCOPE,
             profile: true
         };

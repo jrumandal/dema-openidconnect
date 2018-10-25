@@ -7,6 +7,7 @@ You must provide the following parameters to let it work!
 * process.env.ISSUER
 * process.env.AUTHORIZATION_ENDPOINT
 * process.env.TOKEN_ENDPOINT
+* process.env.REDIRECT_URI (which configures also REDIRECT_URL)
 * process.env.USERINFO_ENDPOINT
 * process.env.AUDIENCE
 * process.env.RESPONSE_TYPE
