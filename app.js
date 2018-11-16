@@ -106,8 +106,6 @@ passport.deserializeUser(function (user, done) {
             redirect_uri: params.redirect_uri,
             scope: params.scope
         },
-        usePKCE,
-        passReqToCallback
     }, (tokenset, userinfo, done) => {
         try {
             console.log('tokenset', tokenset);
