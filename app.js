@@ -131,7 +131,16 @@ passport.deserializeUser(function (user, done) {
 
     // Define path entities required for authentication system
     app.get('/auth', passport.authenticate('oidc', { session: true }));
-    app.get('/callback', passport.authenticate('oidc', { failureRedirect: '/error', }, (req, res) => { res.json({ auth: true }) } ));
+    app.get('/callback',
+        (req, res, next) => {
+            passport.authenticate('oidc', (err, user, info) => {
+                if(err) return next(err);
+                if(req.session.action)
+                    return res.json({ auth: true });
+                else req.redirect('/');
+            });
+        }
+    );
     app.get('/openid/callback', passport.authenticate('oidc', { failureRedirect: '/error', successRedirect: '/' }));
     app.get('/logout', (req, res, next) => {
         req.logout();
