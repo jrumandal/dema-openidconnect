@@ -1,8 +1,8 @@
-$(window).on('ready', function () {
+$(document).on('ready', function () {
     $('.btnTriggerActionGet').on('click', () => {
-        axios.get('/DEL/000000');
+        axios.get('API/DEL/000000');
     });
     $('.btnTriggerActionPost').on('click', () => {
-        axios.post('/DEL/111111');
+        axios.post('API/DEL/111111');
     });
 })
