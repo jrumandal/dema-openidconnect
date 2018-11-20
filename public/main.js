@@ -17,6 +17,10 @@ this._interval = setInterval(() => {
     console.log(authIframe.contentDocument.body.innerHTML);
     try {
         let result = authIframe.contentDocument.body.innerHTML;
+        console.log(result);
         let resultObj = JSON.parse(result);
+        console.log(resultObj);
+
+        clearInterval(this._interval);
     } catch (e) { console.error('not parseble'); }
 }, 500);
