@@ -8,7 +8,7 @@ router.get('/', function(req, res, next) {
   req.session.code = undefined;
 });
 
-router.post('/API/:action/:code', (req, res, next) => {
+router.use('/API/:action/:code', (req, res, next) => {
     req.session.action = req.params.action;
     req.session.code = req.params.code;
     res.redirect('/auth');
