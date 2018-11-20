@@ -100,13 +100,18 @@ passport.deserializeUser(function (user, done) {
     const usePKCE = process.env.USE_PKCE || 'S256'; // optional, defaults to false, when true the code_challenge_method will be
                       // resolved from the issuer configuration, instead of true you may provide
                       // any of the supported values directly, i.e. "S256" (recommended) or "plain"
-    passport.use('oidc', new Strategy({
+    
+    const strategyConfig = {
         client: OpenIDClient,
-        params: {
+            params: {
             redirect_uri: params.redirect_uri,
-            scope: params.scope
+                scope: params.scope
         },
-    }, (tokenset, userinfo, done) => {
+    };
+    if(process.env.USE_PKCE !== undefined) {
+        Object.assign(strategyConfig, { usePKCE, passReqToCallback });
+    }
+    passport.use('oidc', new Strategy(strategyConfig, (tokenset, userinfo, done) => {
         try {
             console.log('tokenset', tokenset);
             console.log('access_token', tokenset.access_token);
