@@ -57,13 +57,13 @@ block content
                         .mdl-textfield.mdl-js-textfield.mdl-textfield--floating-label
                             input.mdl-textfield__input(type="text", id="sample"+i, value=user[keys[i]])
                             label.mdl-textfield__label(for="sample"+i) #{keys[i]}
-                    - if (action)
-                        .mdl-textfield.mdl-js-textfield.mdl-textfield--floating-label
-                            input.mdl-textfield__input(type="text", id="action", value=action)
-                            label.mdl-textfield__label(for="action") #{'Action'}
-                        .mdl-textfield.mdl-js-textfield.mdl-textfield--floating-label
-                            input.mdl-textfield__input(type="text", id="code", value=code)
-                            label.mdl-textfield__label(for="code") #{'Code'}
+                - if (action)
+                    .mdl-textfield.mdl-js-textfield.mdl-textfield--floating-label
+                        input.mdl-textfield__input(type="text", id="action", value=action)
+                        label.mdl-textfield__label(for="action") #{'Action'}
+                    .mdl-textfield.mdl-js-textfield.mdl-textfield--floating-label
+                        input.mdl-textfield__input(type="text", id="code", value=code)
+                        label.mdl-textfield__label(for="code") #{'Code'}
             .mdl-cell.mdl-cell--12-col
                 a.mdl-button.mdl-js-button.mdl-button--raised.mdl-js-ripple-effect.mdl-button--accent(href="./logout")
                     i.material-icons
