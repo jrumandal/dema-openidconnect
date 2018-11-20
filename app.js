@@ -134,10 +134,11 @@ passport.deserializeUser(function (user, done) {
     app.get('/callback',
         (req, res, next) => {
             passport.authenticate('oidc', (err, user, info) => {
+                console.log(err, user, info);
                 if(err) return next(err);
-                if(req.session.action)
+                if (user)
                     return res.json({ auth: true });
-                else req.redirect('/');
+                else res.redirect('/');
             });
         }
     );
