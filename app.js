@@ -132,8 +132,8 @@ passport.deserializeUser(function (user, done) {
     // Define path entities required for authentication system
     app.get('/auth', passport.authenticate('oidc', { session: true }));
     app.get('/callback',
-        (req, res, next) => {
-            passport.authenticate('oidc', (err, user, info) => {
+        function (req, res, next)  {
+            passport.authenticate('oidc', function (err, user, info) {
                 console.log(err, user, info);
                 if(err) return next(err);
                 if (user)
