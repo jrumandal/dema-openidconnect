@@ -21,7 +21,7 @@
     "openid-client": "^2.4.3",
     "passport": "^0.4.0",
     "pug": "2.0.0-beta11",
-    "sequelize": "^4.39.0",
+    "sequelize": "^5.15.1",
     "tedious": "^2.6.4"
   },
   "devDependencies": {
